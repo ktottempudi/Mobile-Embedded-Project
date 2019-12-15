@@ -16,9 +16,9 @@ while True:
         GPIO.output(PIN_TRIGGER, GPIO.LOW)
 
         #prompt notification, sensor calibration
-        print "Waiting for sensor to settle"
+        print ("Waiting for sensor to settle")
         time.sleep(2)
-        print "Calculating distance"
+        print ("Calculating distance")
 
         #set trigger to high
         GPIO.output(PIN_TRIGGER, GPIO.HIGH)
@@ -37,13 +37,13 @@ while True:
 
         #display distance
                 if(distance!=prevDist):
-                    print "Distance:",distance,"cm"
+                    print ("Distance:",distance,"cm")
                     prevDist = distance
                 else:
                     prevDist = distance
 
     #allow keyboard interrupt to stop program
     except KeyboardInterrupt:
-        print "Measurement stopped by User"
+        print ("Measurement stopped by User")
         GPIO.cleanup()
                 break
