@@ -7,7 +7,7 @@ while True:
 		#assign gpio pin numbers to trigger&echo
 		PIN_TRIGGER = 7
 		PIN_ECHO = 11
-
+		prevDist = 0
 		#assign trigger&echo to proper gpio i/o status
 		GPIO.setup(PIN_TRIGGER, GPIO.OUT)
 		GPIO.setup(PIN_ECHO, GPIO.IN)
@@ -36,7 +36,11 @@ while True:
                 distance = round(pulse_duration * 17150, 2)
 
 		#display distance
-                print "Distance:",distance,"cm"
+				if(distance!=prevDist):
+                	print "Distance:",distance,"cm"
+                	prevDist = distance
+            	else:
+            		prevDist = distance
 
 	#allow keyboard interrupt to stop program
 	except KeyboardInterrupt:
