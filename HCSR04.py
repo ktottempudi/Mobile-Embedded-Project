@@ -8,17 +8,17 @@ while True:
         PIN_TRIGGER = 7
         PIN_ECHO = 11
         prevDist = 0
+
         #assign trigger&echo to proper gpio i/o status
+        GPIO.setwarnings(False)
         GPIO.setup(PIN_TRIGGER, GPIO.OUT)
         GPIO.setup(PIN_ECHO, GPIO.IN)
 
         #set trigger to low
         GPIO.output(PIN_TRIGGER, GPIO.LOW)
 
-        #prompt notification, sensor calibration
-        print ("Waiting for sensor to settle")
-        time.sleep(2)
-        print ("Calculating distance")
+        #sensor calibration/settle time
+        time.sleep(1.4)
 
         #set trigger to high
         GPIO.output(PIN_TRIGGER, GPIO.HIGH)
@@ -28,22 +28,20 @@ while True:
         #condition to set start/stop time based on echo
         while GPIO.input(PIN_ECHO)==0:
             pulse_start_time = time.time()
-            while GPIO.input(PIN_ECHO)==1:
-                    pulse_end_time = time.time()
+        while GPIO.input(PIN_ECHO)==1:
+            pulse_end_time = time.time()
 
         #calculate distance based on times. assume speed of sound to  be 17150 cm/s. round distance to 2 decimal places
-                pulse_duration = pulse_end_time - pulse_start_time
-                distance = round(pulse_duration * 17150, 2)
-
-        #display distance
-                if(distance!=prevDist):
-                    print ("Distance:",distance,"cm")
-                    prevDist = distance
-                else:
-                    prevDist = distance
+        pulse_duration = pulse_end_time - pulse_start_time
+        distance = round(pulse_duration * 17150, 2)
+        if(distance!=prevDist):
+            print("Distance:",distance,"cm")
+            prevDist=distance
+        else:
+            prevDist=distance
 
     #allow keyboard interrupt to stop program
     except KeyboardInterrupt:
-        print ("Measurement stopped by User")
+        print("Measurement stopped by User")
         GPIO.cleanup()
-                break
+        break
