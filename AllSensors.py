@@ -41,7 +41,7 @@ UltrasonicThreshold=5
 ultracnt=0
 
 def getTFminiData():
-    print("lidar")
+   # print("lidar")
     global LidarDistance
     global LightValue
     global UltrasonicDistance
@@ -49,13 +49,19 @@ def getTFminiData():
     global prevLidVal
     global prevLight
 
+    global LidarDefault
+    global LidarThreshold
+    global Lidarcnt
+
+
+
     count = 0
 
     while True:
         #print("#############")
         #time.sleep(0.05)   #change the value if needed
         time.sleep(1)
-        print("in while")
+        #print("in while")
         count = count + 1
         (count, recv) = pi.bb_serial_read(RX)
         if count > 8:
@@ -73,13 +79,13 @@ def getTFminiData():
                             Lidarcnt=Lidarcnt+1
                         #strength = recv[i+4] + recv[i+5] * 256
                         if(abs(dist-prevLidVal)>5):
-                            print("lidar if")
+                            #print("lidar if")
                             LidarDistance=dist
-                            print(LidarDistance)
+                            print("Lidar "+LidarDistance)
                             prevLidVal=dist
                             return
                         else:
-                            print("lidar else")
+                            #print("lidar else")
                             prevLidVal=dist
 
                             if count > 100:
@@ -92,13 +98,17 @@ def getTFminiData():
                         #i = i + 9
 
 def getUltraSonicData():
-    print("ultrasonic")
+   # print("ultrasonic")
     global LidarDistance
     global LightValue
     global UltrasonicDistance
     global prevUltraDist
     global prevLidVal
     global prevLight
+
+    global UltrasonicDefault
+    global UltrasonicThreshold
+    global ultracnt
 
     while True:
         try:
@@ -151,7 +161,7 @@ def getUltraSonicData():
     #allow keyboard interrupt to stop program
 
 def getLightData():
-    print("light")
+    #print("light")
     global LidarDistance
     global LightValue
     global UltrasonicDistance
@@ -161,10 +171,10 @@ def getLightData():
 
     while True:
         #print("Value: " + str(ldr.value))
-        print("in Light While")
+      #  print("in Light While")
         light = ldr.value
         if(abs(light-prevLight)>0.2):
-            print("in Light IF")
+           # print("in Light IF")
             LightValue=light
             prevLight=light
             break
@@ -180,25 +190,30 @@ def main():
     global prevUltraDist
     global prevLidVal
     global prevLight
-    print("in main")
+
+    global UltrasonicDefault
+    global UltrasonicThreshold
+    global LidarThreshold
+    global LidarDefault
+  #  print("in main")
 
     while True:
-        print("Beginning of while Main")
+       # print("Beginning of while Main")
         getTFminiData()
         getUltraSonicData()
         getLightData()
         GPIO.cleanup()
-        print("in Main while")
-        print("Still in main While")
+       # print("in Main while")
+       # print("Still in main While")
         if (UltrasonicDefault-UltrasonicDistance>= UltrasonicThreshold or 
             LidarDefault-LidarDistance>= LidarThreshold or LightValue>0.4):
             print("evaluation")
             os.system("fswebcam -r 1280x720 image.jpg")
-        print("end")
+       # print("end")
 
 if __name__ == '__main__':
     try:
-        print("Entering main")
+       # print("Entering main")
         main()
 
     except:
