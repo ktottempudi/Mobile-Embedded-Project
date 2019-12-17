@@ -33,6 +33,13 @@ prevUltraDist = 0
 prevLidVal = 0
 prevLight = 0
 
+LidarDefault=0
+LidarThreshold=5
+Lidarcnt=0
+UltrasonicDefault=0
+UltrasonicThreshold=5
+ultracnt=0
+
 def getTFminiData():
     print("lidar")
     global LidarDistance
@@ -61,6 +68,9 @@ def getTFminiData():
                     if checksum == recv[i+8]:
                         #LidarDistance = recv[i+2] + recv[i+3] * 256
                         dist = recv[i+2] + recv[i+3] * 256
+                        if(Lidarcnt==0):
+                            LidarDefault=dist
+                            Lidarcnt=Lidarcnt+1
                         #strength = recv[i+4] + recv[i+5] * 256
                         if(abs(dist-prevLidVal)>5):
                             print("lidar if")
@@ -122,6 +132,9 @@ def getUltraSonicData():
             #calculate distance based on times. assume speed of sound to  be 17150 cm/s. round distance to 2 decimal places
             pulse_duration = pulse_end_time - pulse_start_time
             distance = round(pulse_duration * 17150, 2)
+            if (ultracnt==0):
+                UltrasonicDefault=distance
+                ultracnt=ultracnt+1
             if(abs(distance-prevUltraDist)>2):
                 UltrasonicDistance=distance
                 print("UltrasonicDistance:",UltrasonicDistance,"cm")
@@ -177,7 +190,8 @@ def main():
         GPIO.cleanup()
         print("in Main while")
         print("Still in main While")
-        if (UltrasonicDistance<= 10 or LidarDistance<= 10 or LightValue>0.4):
+        if (UltrasonicDefault-UltrasonicDistance>= UltrasonicThreshold or 
+            LidarDefault-LidarDistance>= LidarThreshold or LightValue>0.4):
             print("evaluation")
             os.system("fswebcam -r 1280x720 image.jpg")
         print("end")
