@@ -6,7 +6,9 @@ import time
 import os
 import gpiozero
 from gpiozero import LightSensor, Buzzer
-
+from twilio.rest import Client
+import smtplib
+import imgix
 
 #pi cam code
 
@@ -33,6 +35,13 @@ prevUltraDist = 0
 prevLidVal = 0
 prevLight = 0
 
+ultradefault=0
+ultracnt=0
+lidardefault=0
+lidarcnt=0
+lightdefault=0
+lightcnt=0
+
 def getTFminiData():
     print("lidar")
     global LidarDistance
@@ -41,6 +50,8 @@ def getTFminiData():
     global prevUltraDist
     global prevLidVal
     global prevLight
+    global lidardefault
+    global lidarcnt
 
     count = 0
 
@@ -61,6 +72,9 @@ def getTFminiData():
                     if checksum == recv[i+8]:
                         #LidarDistance = recv[i+2] + recv[i+3] * 256
                         dist = recv[i+2] + recv[i+3] * 256
+                        if(lidarcnt==0):
+                            lidardefault=dist
+                            lidarcnt=ultracnt+1
                         #strength = recv[i+4] + recv[i+5] * 256
                         if(abs(dist-prevLidVal)>5):
                             print("lidar if")
@@ -89,6 +103,9 @@ def getUltraSonicData():
     global prevUltraDist
     global prevLidVal
     global prevLight
+    global ultradefault
+    global ultracnt
+
 
     while True:
         try:
@@ -122,6 +139,9 @@ def getUltraSonicData():
             #calculate distance based on times. assume speed of sound to  be 17150 cm/s. round distance to 2 decimal places
             pulse_duration = pulse_end_time - pulse_start_time
             distance = round(pulse_duration * 17150, 2)
+            if(ultracnt==0):
+                ultradefault=distance
+                ultracnt=ultracnt+1
             if(abs(distance-prevUltraDist)>2):
                 UltrasonicDistance=distance
                 print("UltrasonicDistance:",UltrasonicDistance,"cm")
@@ -145,11 +165,16 @@ def getLightData():
     global prevUltraDist
     global prevLidVal
     global prevLight
+    global lightdefault
+    global lightcnt
 
     while True:
         #print("Value: " + str(ldr.value))
         print("in Light While")
         light = ldr.value
+        if (lightcnt==0):
+            lightdefault=light
+            lightcnt=lightcnt+1
         if(abs(light-prevLight)>0.2):
             print("in Light IF")
             LightValue=light
@@ -167,19 +192,44 @@ def main():
     global prevUltraDist
     global prevLidVal
     global prevLight
-    print("in main")
+    global lidardefault
+    global lidarcnt
+    global ultradefault
+    global ultracnt
+    global lightdefault
+    global lightcnt
 
+
+    
+    account_sid = "ACc8cf1d03de8d5e278131f7c16602da8d"
+    auth_token  = "ecf0c95be902670acd9e89e83b3f3364"
+    client = Client(account_sid, auth_token)
+    
     while True:
-        print("Beginning of while Main")
         getTFminiData()
         getUltraSonicData()
         getLightData()
         GPIO.cleanup()
-        print("in Main while")
-        print("Still in main While")
-        if (UltrasonicDistance<= 10 or LidarDistance<= 10 or LightValue>0.4):
-            print("evaluation")
+        #print("in Main while")
+        #print("Still in main While")
+        if (ultradefault-UltrasonicDistance> 10 or lidardefault-LidarDistance> 10 or lightdefault-LightValue>0.4):
+            #print("evaluation")
             os.system("fswebcam -r 1280x720 image.jpg")
+            builder = imgix.UrlBuilder("demos.imgix.net")
+            builder.create_url("/image.jpg", {'w':1280, 'h':720})
+
+            message = client.messages \
+            .create(body='Home security system', 
+                    from_='+18086703472',
+                    to='+17324849120'
+                    )
+
+
+  
+            #print(msg.as_string())
+            #print(message.sid)
+
+
         print("end")
 
 if __name__ == '__main__':
