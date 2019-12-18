@@ -43,7 +43,6 @@ lightdefault=0
 lightcnt=0
 
 def getTFminiData():
-    print("lidar")
     global LidarDistance
     global LightValue
     global UltrasonicDistance
@@ -59,7 +58,7 @@ def getTFminiData():
         #print("#############")
         #time.sleep(0.05)   #change the value if needed
         time.sleep(1)
-        print("in while")
+
         count = count + 1
         (count, recv) = pi.bb_serial_read(RX)
         if count > 8:
@@ -77,13 +76,12 @@ def getTFminiData():
                             lidarcnt=ultracnt+1
                         #strength = recv[i+4] + recv[i+5] * 256
                         if(abs(dist-prevLidVal)>5):
-                            print("lidar if")
                             LidarDistance=dist
+                            print("Lidar Distance: ")
                             print(LidarDistance)
                             prevLidVal=dist
                             return
                         else:
-                            print("lidar else")
                             prevLidVal=dist
 
                             if count > 100:
@@ -96,7 +94,7 @@ def getTFminiData():
                         #i = i + 9
 
 def getUltraSonicData():
-    print("ultrasonic")
+
     global LidarDistance
     global LightValue
     global UltrasonicDistance
@@ -158,7 +156,7 @@ def getUltraSonicData():
     #allow keyboard interrupt to stop program
 
 def getLightData():
-    print("light")
+
     global LidarDistance
     global LightValue
     global UltrasonicDistance
@@ -170,13 +168,12 @@ def getLightData():
 
     while True:
         #print("Value: " + str(ldr.value))
-        print("in Light While")
         light = ldr.value
         if (lightcnt==0):
             lightdefault=light
             lightcnt=lightcnt+1
         if(abs(light-prevLight)>0.2):
-            print("in Light IF")
+
             LightValue=light
             prevLight=light
             break
@@ -230,7 +227,7 @@ def main():
             #print(message.sid)
 
 
-        print("end")
+
 
 if __name__ == '__main__':
     try:
